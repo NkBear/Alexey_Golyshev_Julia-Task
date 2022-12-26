@@ -47,7 +47,5 @@ function snake!(robot,(side,side1))
     end
 end
 
-
 try_move!(robot, direct) = (!isborder(robot, direct) && (move!(robot, direct); return true); false)
 inverse(side::HorizonSide)=HorizonSide((Int(side)+2)%4)
-snake!(robot, (side, side1)::NTuple{2,HorizonSide}=(Ost, Nord)) = snake!(() -> false, robot, (side1, side)
