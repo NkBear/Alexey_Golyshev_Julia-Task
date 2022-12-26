@@ -1,72 +1,79 @@
 using HorizonSideRobots
 
-function mark_frame_perimetr!(r::Robot)
-    num_vert,num_hor = ugol(r)
-    for side in (Nord,Ost,Sud,West)
-        while isborder(r,side)==false
-            putmarkers!(r,side)
+function nomber14!(robot)
+    numSud, numWest=tocorner!(robot)
+    snake!(robot,(Ost,Nord))
+end
+
+function firstplace!(robot,side,num_steps)
+    for _ in 1:num_steps
+        move!(robot,side)
+    end
+end
+
+function tocorner!(robot)
+    numvert=0
+    numhori=0
+    while !isborder(robot,West) || !isborder(robot,Sud)
+        if isborder(robot,West)
+            move!(robot,Sud)
+            numvert+=1
+        else
+            move!(robot,West)
+            numhori+=1
         end
     end
-    moves!(r, Ost, num_hor)
-    moves1!(r, Nord, num_vert)
+    return numvert, numhori
 end
 
-function moves!(r::Robot,side::HorizonSide)
-    num_steps=0
-    while isborder(r,side)==false
-        move!(r,side)
-        num_steps+=1
-    end
-    return num_steps
-end
-
-function moves!(r::Robot,side::HorizonSide,num_steps::Int)
-    for _ in 1:num_steps 
-        move!(r,side)
-    end
-end
-
-function moves1!(r::Robot,side::HorizonSide,num_steps::Int)
-    q=0
-    while q<num_steps 
-        if isborder(r,Nord)==true
-            while isborder(r,side)==true
-                move!(r,Ost)
+function along!(robot, side)
+    numstep=0
+    numlilvert=0
+    while try_move!(robot, side) # - в этом логическом выражении порядок аргументов важен!
+        if (numstep%2==0)
+            putmarker!(robot)
+        end
+        numstep+=1
+        if numstep<11 && isborder(robot,side)
+            while isborder(robot,side)
+                move!(robot,Sud)
+                numlilvert+=1
             end
-            move!(r,Nord)
-            q+=1
-            if isborder(r,West)==true
-                while isborder(r,West)==true
-                    move!(r,Nord)
-                    q+=1
-                end
+            move!(robot,side)
+            numstep+=1
+            while isborder(robot,Nord)
+                move!(robot,side)
+                numstep+=1
             end
-            move!(r,West)
+            for _ in 1:numlilvert
+                move!(robot,Nord)
+            end
+            if side==West
+                putmarker!(robot)
+            end
+            numlilvert=0
         end
-        if q<num_steps
-        move!(r,side)
-        q+=1
+        if numstep==12
+            numstep=0
         end
     end
 end
 
-function putmarkers!(r::Robot, side::HorizonSide)
-    while isborder(r,side)==false
-        move!(r,side)
-        putmarker!(r)
-    end
-    if isborder(r,side)==true
-        putmarker!(r)
+function snake!(robot,(side,side1))
+    along!(robot, side)
+    while try_move!(robot, side1)
+        side = inverse(side)
+        along!(robot, side)
     end
 end
 
-function ugol(r::Robot)
-    num_vert=0
-    num_hor=0
-    while (isborder(r,Sud)==false || isborder(r,West)==false)
-        num_vert+= moves!(r, Sud)
-        num_hor+= moves!(r, West)
-        repeat
+function try_move!(robot,side)
+    if isborder(robot,side)
+        return false
+    else
+        move!(robot,side)
+        return true
     end
-    return num_vert,num_hor
 end
+
+inverse(side::HorizonSide)=HorizonSide((Int(side)+2)%4)
