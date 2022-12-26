@@ -1,19 +1,12 @@
 using HorizonSideRobots
 
-function bober7!(robot)
-    while !isborder(robot,Nord)
-        move!(robot,Nord)
-    end
-    imax,jmax=r.situation.frame_size
-    numberi=10
-    side=Ost
-    while isborder(robot,Nord)
-        move!(robot,side)
-        numberi+=1
-        if (numberi>=imax)
-            side=inverse(side)
-            numberi=0
-        end
+function number_7!(r::Robot)
+    n = 0
+    side = Ost
+    while isborder(r, Nord)
+        n += 1
+        moves!(r, side, n)
+        side = inverse(side)
     end
 end
 
