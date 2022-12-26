@@ -27,7 +27,6 @@ function try_move!(robot,side, stop_condition::Function)
 end
 
 function along!(robot, side,max_num_steps)
-
     num_steps=0
     while try_move!(robot,side, _ -> ismarker(robot)) && num_steps<max_num_steps
         num_steps+=1
